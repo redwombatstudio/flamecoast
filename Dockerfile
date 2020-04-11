@@ -16,21 +16,34 @@ RUN apt-get update && apt-get install -y \
     flex \
     autoconf \
     git
+RUN apt install -y \
+    build-essential \
+    bison \
+    gperf \
+    cmake \
+    libsqlite3-dev \
+    libaspell-dev \
+    libpcre3-dev \
+    nettle-dev \
+    g++ \
+    libcurl4-openssl-dev 
 
-# We'll clone the hellcore source from necanthrope which
-# seems legit. With the prerequisites above we should be able 
-# to compile this thing. Just ignore the warnings.
-RUN git clone https://github.com/toddsundsted/stunt.git
-WORKDIR /app/stunt
-# RUN git clone https://github.com/necanthrope/hellcore .
-RUN ./configure
-RUN make
+RUN git clone https://github.com/lisdude/toaststunt.git
+WORKDIR /app/toaststunt
+RUN mkdir build
+WORKDIR /app/toaststunt/build
+RUN cmake ../
+RUN make -j2
 
 # Let's copy over the executable and databases for convenience.
 # Also normalize the names a bit because capitals are just fugly
 # in filenames.
-RUN cp ./moo ..
-RUN cp ./Minimal.db ../minimal.db
+RUN cp ./moo /app
+RUN cp ../Minimal.db /app/minimal.db
+
+WORKDIR /app
+RUN git clone https://github.com/lisdude/toastcore.git
+run cp toastcore/toastcore.db ./
 
 # So now we just have to pull in the latest sakura database.
 WORKDIR /app
